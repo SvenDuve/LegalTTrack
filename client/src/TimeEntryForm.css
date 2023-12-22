@@ -1,0 +1,13 @@
+/* TimeEntryForm.css */
+form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+}
+
+input, textarea, button {
+    margin: 10px 0;
+    padding: 10px;
+}
