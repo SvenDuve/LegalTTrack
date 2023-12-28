@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 
 // const DroppableArea = () => {
-const DroppableArea = ({ onTextDrop }) => {
+const DroppableArea = ({ onTextDrop, language }) => {
     // State to hold the dropped text
     const [droppedText, setDroppedText] = useState('');
 
@@ -13,25 +13,26 @@ const DroppableArea = ({ onTextDrop }) => {
         accept: 'TEXT', // Accepts only items of type 'TEXT'
         drop: (item, monitor) => {
             // Function to handle the dropped item
-            console.log('Dropped item:', item);
+            const textToDrop = item.text[language];
+
             if (onTextDrop) {
-                onTextDrop(item.text); // Call the passed function with the dropped text
+                onTextDrop(textToDrop); // Call the passed function with the dropped text
             }
-            setDroppedText(prevText => prevText + item.text + ' '); // Append dropped text
+            setDroppedText(prevText => prevText + textToDrop + ' '); // Append dropped text
         },
         collect: monitor => ({
             isOver: !!monitor.isOver(), // Indicates if an item is hovering over the area
         }),
-    }));
+    }), [language]);
 
     // Styling for the droppable area
     const areaStyle = {
-        width: '100%',
-        minHeight: '100px',
         border: '1px dashed grey',
-        padding: '10px',
-        marginTop: '10px',
-        backgroundColor: isOver ? '#f0f0f0' : 'white',
+        fontAlign: 'center',
+        fontSize: '50px',
+        padding: '20px',
+        // marginTop: '10px',
+        // backgroundColor: isOver ? '#f0f0f0' : 'white',
     };
 
     return (
