@@ -30,6 +30,7 @@ form {
 
 textarea {
     min-height: 200px;
+    font-size: 30px;
 }
 button {
     margin: 50px;
@@ -56,9 +57,13 @@ input {
 }
 
 header {
-    min-height: 50px;
+    min-height: 100px;
     font-size: 30px;
-    background: tomato;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    background: lightblue;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
   
 

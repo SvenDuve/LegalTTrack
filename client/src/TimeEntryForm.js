@@ -7,6 +7,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import './TimeEntryForm.css';
 import DraggableText from './DraggableText';
 import DroppableArea from './DroppableArea';
+// import { response } from 'express';
 
 
 
@@ -39,7 +40,8 @@ function TimeEntryForm() {
     };
 
     const [pidOptions, setPidOptions] = useState([{ value: 'pid1', label: 'MID' }, { value: 'pid2', label: 'LUD' }]);
-    const [clientOptions, setClientOptions] = useState([{ value: 'client1', label: 'RWE' }, { value: 'client2', label: 'JPMorgan' }]);
+    // const [clientOptions, setClientOptions] = useState([{ value: 'client1', label: 'RWE' }, { value: 'client2', label: 'JPMorgan' }]);
+    const [clientOptions, setClientOptions] = useState([]);
     const [departmentOptions, setDepartmentOptions] = useState([]);
     const [projectOptions, setProjectOptions] = useState([]);
     const [counterpartyOptions, setCounterpartyOptions] = useState([]);
@@ -57,6 +59,8 @@ function TimeEntryForm() {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log(entry);
+        const allFieldsFilled = Object.values(entry).every(field => field !== '');
+        console.log(allFieldsFilled);
         // Here you would typically send this data to the backend
         // and then clear the form fields
         setEntry({
@@ -69,35 +73,56 @@ function TimeEntryForm() {
             endTime: '',
             description: ''
         });
-    };
 
-    const getDepartmentsForClient = (client) => {
-        // Returns the departments for the given client
-        // In a real app, you might fetch this data from a server
-        return allDepartments[client] || [];
-    };
-    const getProjectsForClient = (client) => {
-        // Returns the departments for the given client
-        // In a real app, you might fetch this data from a server
-        return allProjects[client] || [];
-    };
-    const getCounterpartiesForClient = (client) => {
-        // Returns the departments for the given client
-        // In a real app, you might fetch this data from a server
-        return allCounterparties[client] || [];
-    };
 
+        // Well use this when live
+        // if (allFieldsFilled) {
+        //     console.log(entry); // Log the current values
+        //     // Here you would typically send this data to the backend
+        //     // and then clear the form fields
+        //     setEntry({
+        //         pid: '',
+        //         client: '',
+        //         department: '',
+        //         project: '',
+        //         counterparty: '',
+        //         startTime: '',
+        //         endTime: '',
+        //         description: ''
+        //     });
+        // } else {
+        //     alert('Please fill all fields before submitting.');
+        // }
+    };
 
 
     useEffect(() => {
+
+        fetch('/api/clients')
+        .then(response => response.json())
+        .then(data => {
+            // Assuming data is an array of clients
+            setClientOptions(data.map(client => ({ value: client.value, label: client.label })));
+        })
+        .catch(error => {
+            console.error('Error fetching clients:', error);
+        });
+        
+        console.log(entry.client);
         if (entry.client) {
-            // Implement logic to determine options based on selected client
-            const newDepartmentOptions = getDepartmentsForClient(entry.client);
-            setDepartmentOptions(newDepartmentOptions.map(dept => ({ value: dept, label: dept })));
-            const newProjectsOptions = getProjectsForClient(entry.client);
-            setProjectOptions(newProjectsOptions.map(proj => ({ value: proj, label: proj })));
-            const newCounterpartyOptions = getCounterpartiesForClient(entry.client);
-            setCounterpartyOptions(newCounterpartyOptions.map(cpty => ({ value: cpty, label: cpty })));
+
+            fetch(`/api/departments/${entry.client}`)
+            .then(response => response.json())
+            .then(data => setDepartmentOptions(data.map(dept => ({ value: dept, label: dept }))))   
+
+            fetch(`/api/projects/${entry.client}`)
+            .then(response => response.json())
+            .then(data => setProjectOptions(data.map(project => ({ value: project, label: project }))))   
+
+            fetch('/api/counterparties')
+            .then(response => response.json())
+            .then(data => setCounterpartyOptions(data.map(cpty => ({ value: cpty.value, label: cpty.label }))))
+                   
         } else {
             setDepartmentOptions([]);
             setProjectOptions([]);
@@ -113,65 +138,59 @@ function TimeEntryForm() {
         {en: 'Drafting Response to Counterparty', de: 'Entwurf Antwort an Gegenpartei'},
     ]; // Example draggable items
 
-    const allDepartments = {
-        client1: ['FO', 'Rechtsabteilung'],
-        client2: ['FO', 'BO'],
-        // Add more clients and their departments as needed
-    };
-    const allProjects = {
-        client1: ['Regulatory', 'EFET', 'ISDA'],
-        client2: ['EFET', 'Storage Contracts', 'Carbon Credits'],
-        // Add more clients and their departments as needed
-    };
-    const allCounterparties = {
-        client1: ['Shell', 'BP', 'Novatek'],
-        client2: ['SW Leipzig', 'KoM Solutions', 'Steag'],
-        // Add more clients and their departments as needed
-    };
 
     return (
         <DndProvider backend={HTML5Backend}>
-        <header> DLC Time Entry Form </header>
+        <header> DLC Time Entry Table </header>
             <form className='mainForm' onSubmit={handleSubmit}>
                 <button type="button" onClick={switchLanguage}>Switch Language</button>
                     <div className='user-input'>
-                    <select type="text" name="pid" value={entry.pid} onChange={handleChange}>
+                    <label htmlFor="pid">PID</label>
+                    <select id="pid" type="text" name="pid" value={entry.pid} onChange={handleChange}>
                         <option value="">Select PID</option>
                         {pidOptions.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
+                            ))}
                     </select>
-                    <select type="text" name="client" value={entry.client} onChange={handleChange}>
+                    <label htmlFor="client">Client</label>
+                    <select id="client" type="text" name="client" value={entry.client} onChange={handleChange}>
                         <option value="">Select Client</option>
                         {clientOptions.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
+                            ))}
                     </select>
-                    <select name="department" value={entry.department} onChange={handleChange}>
+                    <label htmlFor="department">Department</label>
+                    <select id= "department" name="department" value={entry.department} onChange={handleChange}>
                         <option value="">Select Client first</option>
                         {departmentOptions.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
+                            ))}
                     </select>
-                    <select name="project" value={entry.project} onChange={handleChange}>
+                    <label htmlFor="project">Project</label>
+                    <select id= "project" name="project" value={entry.project} onChange={handleChange}>
                         <option value="">Select Client first</option>
                         {projectOptions.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
+                            ))}
                     </select>
-                    <select name="counterparty" value={entry.counterparty} onChange={handleChange}>
+                    <label htmlFor="counterparty">Counterparty</label>
+                    <select id= "counterparty" name="counterparty" value={entry.counterparty} onChange={handleChange}>
                         <option value="">Select Client first</option>
                         {counterpartyOptions.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                     </select>
+                    <label htmlFor="startTime">Start Time</label>
                     <input
+                        id="startTime"
                         type="datetime-local"
                         name="startTime"
                         value={entry.startTime}
                         onChange={handleChange}
                     />
+                    <label htmlFor="endTime">End Time</label>
                     <input
+                        id="endTime"
                         type="datetime-local"
                         name="endTime"
                         value={entry.endTime}
