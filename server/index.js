@@ -5,6 +5,7 @@ const sqlite3 = require('sqlite3').verbose();
 const app = express();
 const dbPath = 'data/legalttracker.db';
 
+
 console.log('Hello World Casper!');
 
 
@@ -17,6 +18,12 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
+function addTimeEntry(pid, client, department, project, counterparty, description, start_time, end_time, callback) {
+    const sql = `INSERT INTO time_entries (pid, client, department, project, counterparty, description, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`;
+    db.run(sql, [pid, client, department, project, counterparty, description, start_time, end_time], function(err) {
+        callback(err, { id: this.lastID });
+    });
+}
 
 
 
@@ -31,6 +38,7 @@ function initDb() {
         department TEXT NOT NULL,
         project TEXT NOT NULL,
         counterparty TEXT,
+        description TEXT,
         start_time DATETIME NOT NULL,
         end_time DATETIME NOT NULL
     );`, (err) => {
@@ -111,10 +119,93 @@ app.get('/api/counterparties', (req, res) => {
             return res.status(500).send('An error occurred')
         }
         let counterpartiesData = JSON.parse(data);
-        console.log(data)
         res.json(counterpartiesData);
     });
 });
+
+
+app.post('/api/add-entry', (req, res) => {
+    const { pid, client, department, project, counterparty, description, start_time, end_time } = req.body;
+    console.log('Request body:', req.body); // Log the request body
+    addTimeEntry(pid, client, department, project, counterparty, description, start_time, end_time, (err, result) => {
+        if (err) {
+            // Handle error (e.g., send a 500 Internal Server Error response)
+            console.error(err);
+            res.status(500).json({ error: err.message });
+        } else {
+            // Send a success response (e.g., 201 Created)
+            res.status(201).json({ message: 'Entry added successfully', id: result.id });
+        }
+    });
+});
+
+app.put('/api/time-entries/:id', (req, res) => {
+    console.log('Request body:', req.body); // Log the request body
+    console.log('Request params:', req.params); 
+    const { id } = req.params;
+    const { pid, client, department, project, counterparty, description, start_time, end_time } = req.body;
+
+    const sql = `UPDATE time_entries SET 
+                    pid = ?,
+                    client = ?, 
+                    department = ?, 
+                    project = ?, 
+                    counterparty = ?, 
+                    description = ?,
+                    start_time = ?, 
+                    end_time = ? 
+                 WHERE id = ?`;
+
+    db.run(sql, [pid, client, department, project, counterparty, description, start_time, end_time, id], function(err) {
+        if (err) {
+            console.error(err);
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        if (this.changes === 0) {
+            res.status(404).json({ message: 'Entry not found' });
+        } else {
+            res.json({ message: 'Entry updated successfully', changes: this.changes });
+        }
+    });
+});
+
+
+app.delete('/api/time-entries/:id', (req, res) => {
+    const { id } = req.params;
+    const sql = `DELETE FROM time_entries WHERE id = ?`;
+
+    db.run(sql, id, function(err) {
+        if (err) {
+            res.status(400).json({ error: err.message });
+            return;
+        }
+        if (this.changes === 0) {
+            res.status(404).json({ message: 'Entry not found' });
+        } else {
+            res.json({ message: 'Entry deleted successfully', changes: this.changes });
+        }
+    });
+});
+
+
+app.get('/api/time-entries', (req, res) => {
+    const sql = "SELECT * FROM time_entries";
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({
+            "success": true,
+            "entries": rows
+        });
+    });
+});
+
+
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

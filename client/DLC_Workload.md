@@ -9,3 +9,10 @@
 Review und Mark-up Draft received from Counterparty
 Drafting Respongs to Client
 Drafting Respongs to Counterparty
+
+
+Zeitdifferenz in Stunden und Minuten 'HH:MM Std'
+Datum in DD.MM.YYYY, HH:MM
+Barriere Delete Button
+
+
