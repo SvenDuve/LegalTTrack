@@ -7,7 +7,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import DraggableText from './DraggableText';
 import DroppableArea from './DroppableArea';
 
-
+import FormInput from './FormInput'; // Adjust the path as necessary
+import DropdownInput from './DropdownInput';
 
 
 function TimeEntryForm() {
@@ -39,7 +40,7 @@ function TimeEntryForm() {
         }));
     };
 
-    const [pidOptions, setPidOptions] = useState([{ value: 'pid1', label: 'MID' }, { value: 'pid2', label: 'LUD' }]);
+    const [pidOptions, setPidOptions] = useState([{ value: 'MID', label: 'MID' }, { value: 'LUD', label: 'LUD' }]);
     const [clientOptions, setClientOptions] = useState([]);
     const [clientsMap, setClientsMap] = useState({});
     const [departmentOptions, setDepartmentOptions] = useState([]);
@@ -277,41 +278,46 @@ function TimeEntryForm() {
             <form className='mainForm' onSubmit={handleSubmit}>
                 {/* <button type="button" onClick={switchLanguage}>Switch Language</button> */}
                     <div className='user-input'>
-                    <label htmlFor="pid">PID</label>
-                    <select id="pid" type="text" name="pid" value={entry.pid} onChange={handleChange}>
-                        <option value="">Select PID</option>
-                        {pidOptions.map(opt => (
-                            <option key={opt.value} value={opt.label}>{opt.label}</option>
-                            ))}
-                    </select>
-                    <label htmlFor="client">Client</label>
-                    <select id="client" type="text" name="client" value={entry.client} onChange={handleChange}>
-                        <option value="">Select Client</option>
-                        {clientOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                    </select>
-                    <label htmlFor="department">Department</label>
-                    <select id= "department" name="department" value={entry.department} onChange={handleChange}>
-                        <option value="">Select Client first</option>
-                        {departmentOptions.map(opt => (
-                            <option key={opt.value} value={opt.label}>{opt.label}</option>
-                            ))}
-                    </select>
-                    <label htmlFor="project">Project</label>
-                    <select id= "project" name="project" value={entry.project} onChange={handleChange}>
-                        <option value="">Select Client first</option>
-                        {projectOptions.map(opt => (
-                            <option key={opt.value} value={opt.label}>{opt.label}</option>
-                            ))}
-                    </select>
-                    <label htmlFor="counterparty">Counterparty</label>
-                    <select id= "counterparty" name="counterparty" value={entry.counterparty} onChange={handleChange}>
-                        <option value="">Select Client first</option>
-                        {counterpartyOptions.map(opt => (
-                            <option key={opt.value} value={opt.label}>{opt.label}</option>
-                        ))}
-                    </select>
+                    <DropdownInput
+                        label="PID"
+                        name="pid"
+                        value={entry.pid}
+                        onChange={handleChange}
+                        options={pidOptions}
+                        defaultOption = "Select PID"
+                    />
+                    <DropdownInput
+                        label="Client"
+                        name="client"
+                        value={entry.client}
+                        onChange={handleChange}
+                        options={clientOptions}
+                        defaultOption = "Select Client"
+                    />
+                    <DropdownInput
+                        label="Department"
+                        name="department"
+                        value={entry.department}
+                        onChange={handleChange}
+                        options={departmentOptions}
+                        defaultOption = "Select Department"
+                    />
+                    <DropdownInput
+                        label="Project"
+                        name="project"
+                        value={entry.project}
+                        onChange={handleChange}
+                        options={projectOptions}
+                        defaultOption = "Select Project"
+                    />
+                    <DropdownInput
+                        label="Counterparty"
+                        name="counterparty"
+                        value={entry.counterparty}
+                        onChange={handleChange}
+                        options={counterpartyOptions}
+                        defaultOption = "Select Counterparty"
+                    />
                     <label htmlFor="start_time">Start Time</label>
                     <input
                         id="start_time"
