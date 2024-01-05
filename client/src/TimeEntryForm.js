@@ -6,8 +6,7 @@ import { useDrag, useDrop, DndProvider} from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import DraggableText from './DraggableText';
 import DroppableArea from './DroppableArea';
-import { type } from '@testing-library/user-event/dist/type';
-// import { response } from 'express';
+
 
 
 
@@ -41,7 +40,6 @@ function TimeEntryForm() {
     };
 
     const [pidOptions, setPidOptions] = useState([{ value: 'pid1', label: 'MID' }, { value: 'pid2', label: 'LUD' }]);
-    // const [clientOptions, setClientOptions] = useState([{ value: 'client1', label: 'RWE' }, { value: 'client2', label: 'JPMorgan' }]);
     const [clientOptions, setClientOptions] = useState([]);
     const [clientsMap, setClientsMap] = useState({});
     const [departmentOptions, setDepartmentOptions] = useState([]);
@@ -68,8 +66,10 @@ function TimeEntryForm() {
 
         if (entry.id) {
             updateEntry(entry); // Function to send PUT request
+            alert('Entry updated successfully.')
         } else {
             addTimeEntry(entry); // Existing function to add a new entry
+            alert('Entry added successfully.')
         }
 
 
@@ -105,7 +105,6 @@ function TimeEntryForm() {
             console.error('Error fetching clients:', error);
         });
         
-        console.log(entry.client);
         if (entry.client) {
 
             fetch(`/api/departments/${entry.client}`)
@@ -382,9 +381,7 @@ function TimeEntryForm() {
                             <td>{entry.counterparty}</td>
                             <td>{entry.description}</td>
                             <td>{formatDate(entry.start_time)}</td>
-                            {/* <td>{entry.start_time}</td> */}
                             <td>{formatDate(entry.end_time)}</td>
-                            {/* <td>{entry.end_time}</td> */}
                             <td>{formatDifference(entry.time_diff_hrs_mins)}</td>
                             <td>{entry.time_diff_decimal} h.</td>
                             <td>
