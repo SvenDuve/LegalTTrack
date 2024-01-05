@@ -11,7 +11,7 @@ Drafting Respongs to Client
 Drafting Respongs to Counterparty
 
 
-Zeitdifferenz in Stunden und Minuten 'HH:MM Std'
+Zeitdifferenz in Stunden und Minuten 'HH:MM Std' done.
 Datum in DD.MM.YYYY, HH:MM done.
 Barriere Delete Button, done.
 

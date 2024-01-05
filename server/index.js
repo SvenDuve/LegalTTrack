@@ -5,6 +5,22 @@ const sqlite3 = require('sqlite3').verbose();
 const app = express();
 const dbPath = 'data/legalttracker.db';
 
+const fs = require('fs');
+
+let clientsMap = {};
+
+// Load the clients JSON file when the server starts
+fs.readFile('data/clients.json', 'utf8', (err, data) => {
+    if (err) {
+        console.error(err);
+        return;
+    }
+
+    let clientsData = JSON.parse(data);
+    clientsData.forEach(client => {
+        clientsMap[client.value] = client.label;
+    });
+});
 
 console.log('Hello World Casper!');
 
@@ -65,7 +81,7 @@ app.get('/', (req, res) => {
 
 app.get('/api/clients', (req, res) => {
     // Fetch or compute the clients data
-    const fs = require('fs');
+    // const fs = require('fs');
     fs.readFile('data/clients.json', 'utf8', (err, data) => {
         if (err) {
             console.error(err);
@@ -78,7 +94,7 @@ app.get('/api/clients', (req, res) => {
 
 app.get('/api/departments/:client', (req, res) => {
     // Fetch or compute the clients data
-    const fs = require('fs');
+    // const fs = require('fs');
     fs.readFile('data/departments.json', 'utf8', (err, data) => {
         if (err) {
             console.error(err);
@@ -95,7 +111,7 @@ app.get('/api/departments/:client', (req, res) => {
 
 app.get('/api/projects/:client', (req, res) => {
     // Fetch or compute the clients data
-    const fs = require('fs');
+    // const fs = require('fs');
     fs.readFile('data/projects.json', 'utf8', (err, data) => {
         if (err) {
             console.error(err);
@@ -112,7 +128,7 @@ app.get('/api/projects/:client', (req, res) => {
 
 app.get('/api/counterparties', (req, res) => {
     // Fetch or compute the clients data
-    const fs = require('fs');
+    // const fs = require('fs');
     fs.readFile('data/counterparties.json', 'utf8', (err, data) => {
         if (err) {
             console.error(err);
@@ -204,7 +220,6 @@ app.delete('/api/time-entries/:id', (req, res) => {
 //     });
 // });
 
-
 app.get('/api/time-entries', (req, res) => {
     const sql = `
         SELECT 
@@ -226,11 +241,22 @@ app.get('/api/time-entries', (req, res) => {
             res.status(500).json({ error: err.message });
             return;
         }
+        
+        // // Load the clients JSON file
+
+
+        // Map the client values to their labels
+        rows.forEach(row => {
+            row.client = clientsMap[row.client] || row.client;
+        });
+
         res.json({
             "success": true,
             "entries": rows
         });
+                    
     });
+
 });
 
 

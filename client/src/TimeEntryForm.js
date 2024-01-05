@@ -43,6 +43,7 @@ function TimeEntryForm() {
     const [pidOptions, setPidOptions] = useState([{ value: 'pid1', label: 'MID' }, { value: 'pid2', label: 'LUD' }]);
     // const [clientOptions, setClientOptions] = useState([{ value: 'client1', label: 'RWE' }, { value: 'client2', label: 'JPMorgan' }]);
     const [clientOptions, setClientOptions] = useState([]);
+    const [clientsMap, setClientsMap] = useState({});
     const [departmentOptions, setDepartmentOptions] = useState([]);
     const [projectOptions, setProjectOptions] = useState([]);
     const [counterpartyOptions, setCounterpartyOptions] = useState([]);
@@ -53,10 +54,6 @@ function TimeEntryForm() {
     const handleChange = (e) => {
         setEntry({ ...entry, [e.target.name]: e.target.value });
     };
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setEntry(prevEntry => ({ ...prevEntry, [name]: value }));
-    // };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -97,6 +94,12 @@ function TimeEntryForm() {
         .then(data => {
             // Assuming data is an array of clients
             setClientOptions(data.map(client => ({ value: client.value, label: client.label })));
+
+            let newClientsMap = {};
+            data.forEach(client => {
+                newClientsMap[client.label] = client.value;
+            });
+            setClientsMap(newClientsMap);
         })
         .catch(error => {
             console.error('Error fetching clients:', error);
@@ -161,14 +164,6 @@ function TimeEntryForm() {
         }
     };
     
-
-    // const fetchData = async (pageNumber = 1, filters = {}) => {
-    //     // Construct the query string based on pagination and filters
-    //     const query = new URLSearchParams({ page: pageNumber, ...filters }).toString();
-    //     const response = await fetch(`/api/time-entries?${query}`);
-    //     const data = await response.json();
-    //     return data;
-    // };
     
     const editEntry = (entry) => {
         setEntry(entry);
@@ -176,6 +171,8 @@ function TimeEntryForm() {
     };
 
     const populateFormForEdit = (entry) => {
+
+        entry.client = clientsMap[entry.client]
         setEntry(entry); // This assumes the structure of 'entry' matches your state
         // Optionally, scroll to the form or handle UI changes
     };
@@ -222,17 +219,6 @@ function TimeEntryForm() {
         }
     };
     
-    // const formatDate = (dateString) => {
-    //     console.log(dateString);
-    //     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', timeZone: 'Europe/Berlin' };
-    //     const date = new Date(dateString);
-    //     if (isNaN(date)) {
-    //         console.error('Invalid date:', dateString);
-    //         return 'Invalid Date';
-    //     }
-    //     return date.toLocaleDateString('de-DE', options);
-    // };
-
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -247,7 +233,7 @@ function TimeEntryForm() {
         const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
     
-        return `${day}.${month}.${year} ${hours}:${minutes} Uhr`;
+        return `${day}.${month}.${year} ${hours}:${minutes} h.`;
     };
 
     const formatDifference = (timeString) => {
@@ -258,17 +244,32 @@ function TimeEntryForm() {
             return 'Invalid Time';
         }
     
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} Std.`;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} h.`;
         };
     
 
 
-    const dragItems = [
-        {en: 'Review and Mark-up Draft from Client', de: 'Durchsicht und Überarbeitung des Vertragsentwurfs des Kunden'},
-        {en: 'Review and Mark-up Draft received from Counterparty', de: 'Durchsicht und Überarbeitung des Vertragsentwurfs der Gegenpartei'},
-        {en: 'Drafting Response to Client', de: 'Entwurf Antwort an Kunden'},
-        {en: 'Drafting Response to Counterparty', de: 'Entwurf Antwort an Gegenpartei'},
-    ]; // Example draggable items
+        const dragItems = [
+            {en: 'review and mark-up of draft', de: 'Überprüfung und Überarbeitung des Entwurfs'},
+            {en: 'mark-up draft incorporation of comments received by', de: 'Überarbeitung Entwurf Einarbeitung der Kommentare von'},
+            {en: 'mark-up draft incorporation of instructions received by', de: 'Überarbeitung Entwurf Einarbeitung von Anweisungen von'},
+            {en: 'incorporation of comments received by', de: 'Einarbeitung von Kommentaren von'},
+            {en: 'incorporation of instructions received by', de: 'Einarbeitung von Anweisungen von'},
+            {en: 'review of email communication by', de: 'Durchsicht der E-Mail-Kommunikation durch'},
+            {en: 'drafting response to', de: 'Entwurf einer Antwort an'},
+            {en: 'research regarding', de: 'Recherche bezüglich'},
+            {en: 'research own files for additional information', de: 'Recherche in eigenen Akten nach zusätzlichen Informationen'},
+            {en: 'taking notes', de: 'Anfertigung von Notizen'},
+            {en: 'reviewing notes taken during meeting', de: 'Überprüfung der während der Sitzung gemachten Notizen'},
+            {en: 'preparation for meeting', de: 'Vorbereitung auf die Sitzung'},
+            {en: 'preparation for call', de: 'Vorbereitung auf das Gespräch'},
+            {en: 'call by', de: 'Anruf durch'},
+            {en: 'call to', de: 'Anruf an'},
+            {en: 'drafting an email briefly outlining findings', de: 'Entwurf einer E-Mail, in der die Ergebnisse kurz dargelegt werden'},
+            {en: 'distribution of revised document', de: 'Verteilung des überarbeiteten Dokuments'},
+            {en: 'evaluation of differences between', de: 'Bewertung der Unterschiede zwischen'},
+            {en: 'drafting supporting email', de: 'Entwurf einer begleitenden E-Mail'},
+        ]; // Example draggable items
 
 
     return (
@@ -281,7 +282,7 @@ function TimeEntryForm() {
                     <select id="pid" type="text" name="pid" value={entry.pid} onChange={handleChange}>
                         <option value="">Select PID</option>
                         {pidOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            <option key={opt.value} value={opt.label}>{opt.label}</option>
                             ))}
                     </select>
                     <label htmlFor="client">Client</label>
@@ -295,21 +296,21 @@ function TimeEntryForm() {
                     <select id= "department" name="department" value={entry.department} onChange={handleChange}>
                         <option value="">Select Client first</option>
                         {departmentOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            <option key={opt.value} value={opt.label}>{opt.label}</option>
                             ))}
                     </select>
                     <label htmlFor="project">Project</label>
                     <select id= "project" name="project" value={entry.project} onChange={handleChange}>
                         <option value="">Select Client first</option>
                         {projectOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            <option key={opt.value} value={opt.label}>{opt.label}</option>
                             ))}
                     </select>
                     <label htmlFor="counterparty">Counterparty</label>
                     <select id= "counterparty" name="counterparty" value={entry.counterparty} onChange={handleChange}>
                         <option value="">Select Client first</option>
                         {counterpartyOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                            <option key={opt.value} value={opt.label}>{opt.label}</option>
                         ))}
                     </select>
                     <label htmlFor="start_time">Start Time</label>
@@ -367,6 +368,7 @@ function TimeEntryForm() {
                         <th>Start Time</th>
                         <th>End Time</th>
                         <th>Time Difference</th>
+                        <th>Time Difference Decimal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -384,6 +386,7 @@ function TimeEntryForm() {
                             <td>{formatDate(entry.end_time)}</td>
                             {/* <td>{entry.end_time}</td> */}
                             <td>{formatDifference(entry.time_diff_hrs_mins)}</td>
+                            <td>{entry.time_diff_decimal} h.</td>
                             <td>
                                 <button onClick={() => populateFormForEdit(entry)}>Edit</button>
                                 <button onClick={() => deleteEntry(entry.id)}>Delete</button>
