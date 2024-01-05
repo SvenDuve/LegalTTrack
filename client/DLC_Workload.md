@@ -12,7 +12,7 @@ Drafting Respongs to Counterparty
 
 
 Zeitdifferenz in Stunden und Minuten 'HH:MM Std'
-Datum in DD.MM.YYYY, HH:MM
-Barriere Delete Button
+Datum in DD.MM.YYYY, HH:MM done.
+Barriere Delete Button, done.
 
 

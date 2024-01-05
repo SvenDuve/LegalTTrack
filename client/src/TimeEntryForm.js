@@ -60,47 +60,33 @@ function TimeEntryForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(entry);
         const allFieldsFilled = Object.values(entry).every(field => field !== '');
-        console.log(allFieldsFilled);
-        // Here you would typically send this data to the backend
-        // and then clear the form fields
+
+        if (!allFieldsFilled) {
+            console.log(entry);
+            alert('Please fill all fields before submitting.');
+            return;
+        }
+
+
         if (entry.id) {
             updateEntry(entry); // Function to send PUT request
         } else {
             addTimeEntry(entry); // Existing function to add a new entry
         }
-        // addTimeEntry(entry)
+
+
         setEntry({
             pid: '',
             client: '',
             department: '',
             project: '',
             counterparty: '',
-            startTime: '',
-            endTime: '',
+            start_time: '',
+            end_time: '',
             description: ''
         });
 
-
-        // Well use this when live
-        // if (allFieldsFilled) {
-        //     console.log(entry); // Log the current values
-        //     // Here you would typically send this data to the backend
-        //     // and then clear the form fields
-        //     setEntry({
-        //         pid: '',
-        //         client: '',
-        //         department: '',
-        //         project: '',
-        //         counterparty: '',
-        //         startTime: '',
-        //         endTime: '',
-        //         description: ''
-        //     });
-        // } else {
-        //     alert('Please fill all fields before submitting.');
-        // }
     };
 
 
@@ -220,6 +206,11 @@ function TimeEntryForm() {
         // Call API to delete the entry
         // Remove the entry from the 'entries' state or refetch the entries
         try {
+            const confirmDelete = window.confirm('Are you sure you want to delete this entry?');
+            if (!confirmDelete) {
+                return;
+            }
+
             const response = await fetch(`/api/time-entries/${id}`, { method: 'DELETE' });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -231,15 +222,46 @@ function TimeEntryForm() {
         }
     };
     
+    // const formatDate = (dateString) => {
+    //     console.log(dateString);
+    //     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', timeZone: 'Europe/Berlin' };
+    //     const date = new Date(dateString);
+    //     if (isNaN(date)) {
+    //         console.error('Invalid date:', dateString);
+    //         return 'Invalid Date';
+    //     }
+    //     return date.toLocaleDateString('de-DE', options);
+    // };
+
+
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', timeZone: 'Europe/Berlin' };
         const date = new Date(dateString);
-        if (isNaN(date)) {
+        if (isNaN(date.getTime())) {
             console.error('Invalid date:', dateString);
             return 'Invalid Date';
         }
-        return date.toLocaleDateString('de-DE', options);
+    
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0'); // getMonth() is zero-based
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+        return `${day}.${month}.${year} ${hours}:${minutes} Uhr`;
     };
+
+    const formatDifference = (timeString) => {
+        const [hours, minutes] = timeString.split(':').map(Number);
+
+        if (isNaN(hours) || isNaN(minutes)) {
+            console.error('Invalid time:', timeString);
+            return 'Invalid Time';
+        }
+    
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} Std.`;
+        };
+    
+
 
     const dragItems = [
         {en: 'Review and Mark-up Draft from Client', de: 'Durchsicht und Überarbeitung des Vertragsentwurfs des Kunden'},
@@ -290,17 +312,17 @@ function TimeEntryForm() {
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
                         ))}
                     </select>
-                    <label htmlFor="startTime">Start Time</label>
+                    <label htmlFor="start_time">Start Time</label>
                     <input
-                        id="startTime"
+                        id="start_time"
                         type="datetime-local"
                         name="start_time"
                         value={entry.start_time}
                         onChange={handleChange}
                     />
-                    <label htmlFor="endTime">End Time</label>
+                    <label htmlFor="end_time">End Time</label>
                     <input
-                        id="endTime"
+                        id="end_time"
                         type="datetime-local"
                         name="end_time"
                         value={entry.end_time}
@@ -344,6 +366,7 @@ function TimeEntryForm() {
                         <th>Description</th>
                         <th>Start Time</th>
                         <th>End Time</th>
+                        <th>Time Difference</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -360,6 +383,7 @@ function TimeEntryForm() {
                             {/* <td>{entry.start_time}</td> */}
                             <td>{formatDate(entry.end_time)}</td>
                             {/* <td>{entry.end_time}</td> */}
+                            <td>{formatDifference(entry.time_diff_hrs_mins)}</td>
                             <td>
                                 <button onClick={() => populateFormForEdit(entry)}>Edit</button>
                                 <button onClick={() => deleteEntry(entry.id)}>Delete</button>

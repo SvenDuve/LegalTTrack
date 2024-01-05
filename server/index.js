@@ -189,8 +189,37 @@ app.delete('/api/time-entries/:id', (req, res) => {
 });
 
 
+// app.get('/api/time-entries', (req, res) => {
+//     const sql = "SELECT * FROM time_entries";
+
+//     db.all(sql, [], (err, rows) => {
+//         if (err) {
+//             res.status(500).json({ error: err.message });
+//             return;
+//         }
+//         res.json({
+//             "success": true,
+//             "entries": rows
+//         });
+//     });
+// });
+
+
 app.get('/api/time-entries', (req, res) => {
-    const sql = "SELECT * FROM time_entries";
+    const sql = `
+        SELECT 
+            id, 
+            pid, 
+            client, 
+            department, 
+            project, 
+            counterparty, 
+            description, 
+            start_time, 
+            end_time,
+            strftime('%H:%M', (julianday(end_time) - julianday(start_time)) * 86400.0, 'unixepoch') AS time_diff_hrs_mins,
+            ROUND((julianday(end_time) - julianday(start_time)) * 24.0, 2) AS time_diff_decimal
+        FROM time_entries`;
 
     db.all(sql, [], (err, rows) => {
         if (err) {
@@ -203,6 +232,7 @@ app.get('/api/time-entries', (req, res) => {
         });
     });
 });
+
 
 
 
