@@ -12,6 +12,12 @@ import DropdownInput from './DropdownInput';
 import DateTimeInput from './DateTimeInput';
 
 
+const apiUrl = process.env.REACT_APP_API_URL;
+console.log('API URL:', apiUrl);
+
+
+
+
 function TimeEntryForm() {
     const [entry, setEntry] = useState({
         pid: '',
@@ -91,7 +97,7 @@ function TimeEntryForm() {
 
     useEffect(() => {
 
-        fetch('/api/clients')
+        fetch(`${apiUrl}/api/clients`)
         .then(response => response.json())
         .then(data => {
             // Assuming data is an array of clients
@@ -109,15 +115,15 @@ function TimeEntryForm() {
         
         if (entry.client) {
 
-            fetch(`/api/departments/${entry.client}`)
+            fetch(`${apiUrl}/api/departments/${entry.client}`)
             .then(response => response.json())
             .then(data => setDepartmentOptions(data.map(dept => ({ value: dept, label: dept }))))   
 
-            fetch(`/api/projects/${entry.client}`)
+            fetch(`${apiUrl}/api/projects/${entry.client}`)
             .then(response => response.json())
             .then(data => setProjectOptions(data.map(project => ({ value: project, label: project }))))   
 
-            fetch('/api/counterparties')
+            fetch(`${apiUrl}/api/counterparties`)
             .then(response => response.json())
             .then(data => setCounterpartyOptions(data.map(cpty => ({ value: cpty.value, label: cpty.label }))))
                    
@@ -131,7 +137,7 @@ function TimeEntryForm() {
 
     useEffect(() => {
         setLoading(true);
-        fetch('/api/time-entries')
+        fetch(`${apiUrl}/api/time-entries`)
             .then(response => response.json())
             // .then(data => setEntries(Object.values(data)[1]))
             .then(data => setEntries(data.entries))
@@ -146,7 +152,7 @@ function TimeEntryForm() {
 
     const addTimeEntry = async (data) => {
         try {
-            const response = await fetch('/api/add-entry', {
+            const response = await fetch(`${apiUrl}/api/add-entry`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -180,7 +186,7 @@ function TimeEntryForm() {
 
     const updateEntry = async (updatedEntry) => {
         try {
-            const response = await fetch(`/api/time-entries/${updatedEntry.id}`, {
+            const response = await fetch(`${apiUrl}/api/time-entries/${updatedEntry.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -209,7 +215,7 @@ function TimeEntryForm() {
                 return;
             }
 
-            const response = await fetch(`/api/time-entries/${id}`, { method: 'DELETE' });
+            const response = await fetch(`${apiUrl}/api/time-entries/${id}`, { method: 'DELETE' });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -278,7 +284,7 @@ function TimeEntryForm() {
         <header> DLC Time Entry Table </header>
             <form className='mainForm' onSubmit={handleSubmit}>
                 {/* <button type="button" onClick={switchLanguage}>Switch Language</button> */}
-                    <div className='user-input'>
+                <div className='user-input'>
                     <DropdownInput
                         label="PID"
                         name="pid"
@@ -370,49 +376,51 @@ function TimeEntryForm() {
                             />
                         </div>
                     <div className='area-button'>
-                        <button className='submit-button' type="submit">Submit</button>
-                        <button type="button" onClick={switchLanguage}>Switch Language</button>
+                        <button className='btn btn-outline-secondary' type="submit">Submit</button>
+                        <button className='btn btn-outline-secondary' type="button" onClick={switchLanguage}>Switch Language</button>
                     </div>
                 </div>
             </form>
-            <table className='data-table'>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>PID</th>
-                        <th>Client</th>
-                        <th>Department</th>
-                        <th>Project</th>
-                        <th>Counterparty</th>
-                        <th>Description</th>
-                        <th>Start Time</th>
-                        <th>End Time</th>
-                        <th>Time Difference</th>
-                        <th>Time Difference Decimal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {entries.map(entry => (
-                        <tr key={entry.id}>
-                            <td>{entry.id}</td>
-                            <td>{entry.pid}</td>
-                            <td>{entry.client}</td>
-                            <td>{entry.department}</td>
-                            <td>{entry.project}</td>
-                            <td>{entry.counterparty}</td>
-                            <td>{entry.description}</td>
-                            <td>{formatDate(entry.start_time)}</td>
-                            <td>{formatDate(entry.end_time)}</td>
-                            <td>{formatDifference(entry.time_diff_hrs_mins)}</td>
-                            <td>{entry.time_diff_decimal} h.</td>
-                            <td>
-                                <button onClick={() => populateFormForEdit(entry)}>Edit</button>
-                                <button onClick={() => deleteEntry(entry.id)}>Delete</button>
-                            </td>
+            <div className='table-responsive'>
+                <table className='table table-striped table-hover'>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>PID</th>
+                            <th>Client</th>
+                            <th>Department</th>
+                            <th>Project</th>
+                            <th>Counterparty</th>
+                            <th>Description</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Time Difference</th>
+                            <th>Time Difference Decimal</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {entries.map(entry => (
+                            <tr key={entry.id}>
+                                <td>{entry.id}</td>
+                                <td>{entry.pid}</td>
+                                <td>{entry.client}</td>
+                                <td>{entry.department}</td>
+                                <td>{entry.project}</td>
+                                <td>{entry.counterparty}</td>
+                                <td>{entry.description}</td>
+                                <td>{formatDate(entry.start_time)}</td>
+                                <td>{formatDate(entry.end_time)}</td>
+                                <td>{formatDifference(entry.time_diff_hrs_mins)}</td>
+                                <td>{entry.time_diff_decimal} h.</td>
+                                <td>
+                                    <button className='btn btn-outline-secondary btn-sm' onClick={() => populateFormForEdit(entry)}>Edit</button>
+                                    <button className='btn btn-outline-danger btn-sm' onClick={() => deleteEntry(entry.id)}>Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </DndProvider>
     );
 }
