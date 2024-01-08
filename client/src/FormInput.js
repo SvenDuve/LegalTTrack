@@ -1,6 +1,6 @@
 import React from 'react';
 // If using Bootstrap, uncomment the next line
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function FormInput({ label, value, onChange, type = 'text', name, placeholder }) {
     return (

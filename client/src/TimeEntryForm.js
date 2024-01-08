@@ -7,8 +7,9 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import DraggableText from './DraggableText';
 import DroppableArea from './DroppableArea';
 
-import FormInput from './FormInput'; // Adjust the path as necessary
+
 import DropdownInput from './DropdownInput';
+import DateTimeInput from './DateTimeInput';
 
 
 function TimeEntryForm() {
@@ -318,22 +319,36 @@ function TimeEntryForm() {
                         options={counterpartyOptions}
                         defaultOption = "Select Counterparty"
                     />
-                    <label htmlFor="start_time">Start Time</label>
+                    <DateTimeInput
+                        label="Start Time"
+                        name="start_time"
+                        id="start_time"
+                        value={entry.start_time}
+                        onChange={handleChange}
+                    />
+                    {/* <label htmlFor="start_time">Start Time</label>
                     <input
                         id="start_time"
                         type="datetime-local"
                         name="start_time"
                         value={entry.start_time}
                         onChange={handleChange}
+                    /> */}
+                    <DateTimeInput
+                        label="End Time"
+                        name="end_time"
+                        id="end_time"
+                        value={entry.end_time}
+                        onChange={handleChange}
                     />
-                    <label htmlFor="end_time">End Time</label>
+                    {/* <label htmlFor="end_time">End Time</label>
                     <input
                         id="end_time"
                         type="datetime-local"
                         name="end_time"
                         value={entry.end_time}
                         onChange={handleChange}
-                    />
+                    /> */}
                 </div>
                 <div className='area'>                    
                     <div className="area-drag">
