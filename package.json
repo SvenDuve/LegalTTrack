@@ -2,6 +2,9 @@
     "scripts": {
       "start": "node server/index.js",
       "heroku-postbuild": "npm install --prefix server && npm run build --prefix client"
-    }
+    },
+    "engines": {
+        "node": "v20.7.0"
+      }
 }
   
