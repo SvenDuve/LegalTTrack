@@ -1,11 +1,28 @@
-
-
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const app = express();
+
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../client/build')));
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'));
+    });
+}
+
+
+
+
+
+
+
 const cors = require('cors');
 app.use(cors());
-const dbPath = 'data/legalttracker.db';
+const dbPath = 'data/legalttracker.sqlite';
+// const dbPath = new URL(process.env.DATABASE_URL).pathname;
+
+
+
 
 const fs = require('fs');
 
@@ -27,6 +44,14 @@ fs.readFile('data/clients.json', 'utf8', (err, data) => {
 console.log('Hello World Casper!');
 
 
+// const db = new sqlite3.Database(new URL(process.env.DATABASE_URL).pathname, (err) => {
+//     if (err) {
+//         console.error(err.message);
+//     } else {
+//         console.log('Connected to the SQLite database.');
+//         initDb(); // Call the function to initialize the database
+//     }
+// });
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error(err.message);
@@ -266,7 +291,7 @@ app.get('/api/time-entries', (req, res) => {
 
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
