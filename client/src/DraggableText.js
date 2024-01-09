@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useDrag } from 'react-dnd';
 
 const DraggableText = ({ item, language }) => {
@@ -14,7 +14,6 @@ const DraggableText = ({ item, language }) => {
     }));
     // Styling for the droppable area
     const draggableStyle = {
-        border: '1px solid grey',
         // backgroundColor: 'yellow',
         padding: '5px',
         margin: '2px',

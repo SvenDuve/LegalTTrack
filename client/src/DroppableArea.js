@@ -27,12 +27,11 @@ const DroppableArea = ({ onTextDrop, language }) => {
 
     // Styling for the droppable area
     const areaStyle = {
-        border: '1px dashed grey',
         fontAlign: 'center',
         fontSize: '50px',
         padding: '20px',
         // marginTop: '10px',
-        // backgroundColor: isOver ? '#f0f0f0' : 'white',
+        backgroundColor: isOver ? 'var(--backgroun-element)' : 'var(--background-color)',
     };
 
     return (

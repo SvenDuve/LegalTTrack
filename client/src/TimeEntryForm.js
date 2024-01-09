@@ -2,10 +2,18 @@
 import React, { useState, useEffect } from 'react';
 // Add this import to your TimeEntryForm.js
 import './TimeEntryForm.css';
-import { useDrag, useDrop, DndProvider} from 'react-dnd';
+import { DndProvider} from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import DraggableText from './DraggableText';
 import DroppableArea from './DroppableArea';
+
+
+import DropdownInput from './DropdownInput';
+import DateTimeInput from './DateTimeInput';
+
+
+const apiUrl = process.env.REACT_APP_API_URL;
+console.log('API URL:', apiUrl);
 
 
 
@@ -24,7 +32,7 @@ function TimeEntryForm() {
 
     const [language, setLanguage] = useState('en'); // default language is English
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    // const [error, setError] = useState(null);
 
     const switchLanguage = () => {
         setLanguage(prevLang => prevLang === 'en' ? 'de' : 'en');
@@ -39,7 +47,7 @@ function TimeEntryForm() {
         }));
     };
 
-    const [pidOptions, setPidOptions] = useState([{ value: 'pid1', label: 'MID' }, { value: 'pid2', label: 'LUD' }]);
+    const [pidOptions, setPidOptions] = useState([{ value: 'MID', label: 'MID' }, { value: 'LUD', label: 'LUD' }]);
     const [clientOptions, setClientOptions] = useState([]);
     const [clientsMap, setClientsMap] = useState({});
     const [departmentOptions, setDepartmentOptions] = useState([]);
@@ -89,7 +97,7 @@ function TimeEntryForm() {
 
     useEffect(() => {
 
-        fetch('/api/clients')
+        fetch(`${apiUrl}/api/clients`)
         .then(response => response.json())
         .then(data => {
             // Assuming data is an array of clients
@@ -107,15 +115,15 @@ function TimeEntryForm() {
         
         if (entry.client) {
 
-            fetch(`/api/departments/${entry.client}`)
+            fetch(`${apiUrl}/api/departments/${entry.client}`)
             .then(response => response.json())
             .then(data => setDepartmentOptions(data.map(dept => ({ value: dept, label: dept }))))   
 
-            fetch(`/api/projects/${entry.client}`)
+            fetch(`${apiUrl}/api/projects/${entry.client}`)
             .then(response => response.json())
             .then(data => setProjectOptions(data.map(project => ({ value: project, label: project }))))   
 
-            fetch('/api/counterparties')
+            fetch(`${apiUrl}/api/counterparties`)
             .then(response => response.json())
             .then(data => setCounterpartyOptions(data.map(cpty => ({ value: cpty.value, label: cpty.label }))))
                    
@@ -129,7 +137,7 @@ function TimeEntryForm() {
 
     useEffect(() => {
         setLoading(true);
-        fetch('/api/time-entries')
+        fetch(`${apiUrl}/api/time-entries`)
             .then(response => response.json())
             // .then(data => setEntries(Object.values(data)[1]))
             .then(data => setEntries(data.entries))
@@ -144,7 +152,7 @@ function TimeEntryForm() {
 
     const addTimeEntry = async (data) => {
         try {
-            const response = await fetch('/api/add-entry', {
+            const response = await fetch(`${apiUrl}/api/add-entry`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -164,10 +172,10 @@ function TimeEntryForm() {
     };
     
     
-    const editEntry = (entry) => {
-        setEntry(entry);
-        // Scroll to the form or open a modal for editing
-    };
+    // const editEntry = (entry) => {
+    //     setEntry(entry);
+    //     // Scroll to the form or open a modal for editing
+    // };
 
     const populateFormForEdit = (entry) => {
 
@@ -178,7 +186,7 @@ function TimeEntryForm() {
 
     const updateEntry = async (updatedEntry) => {
         try {
-            const response = await fetch(`/api/time-entries/${updatedEntry.id}`, {
+            const response = await fetch(`${apiUrl}/api/time-entries/${updatedEntry.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -207,7 +215,7 @@ function TimeEntryForm() {
                 return;
             }
 
-            const response = await fetch(`/api/time-entries/${id}`, { method: 'DELETE' });
+            const response = await fetch(`${apiUrl}/api/time-entries/${id}`, { method: 'DELETE' });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -276,58 +284,77 @@ function TimeEntryForm() {
         <header> DLC Time Entry Table </header>
             <form className='mainForm' onSubmit={handleSubmit}>
                 {/* <button type="button" onClick={switchLanguage}>Switch Language</button> */}
-                    <div className='user-input'>
-                    <label htmlFor="pid">PID</label>
-                    <select id="pid" type="text" name="pid" value={entry.pid} onChange={handleChange}>
-                        <option value="">Select PID</option>
-                        {pidOptions.map(opt => (
-                            <option key={opt.value} value={opt.label}>{opt.label}</option>
-                            ))}
-                    </select>
-                    <label htmlFor="client">Client</label>
-                    <select id="client" type="text" name="client" value={entry.client} onChange={handleChange}>
-                        <option value="">Select Client</option>
-                        {clientOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                    </select>
-                    <label htmlFor="department">Department</label>
-                    <select id= "department" name="department" value={entry.department} onChange={handleChange}>
-                        <option value="">Select Client first</option>
-                        {departmentOptions.map(opt => (
-                            <option key={opt.value} value={opt.label}>{opt.label}</option>
-                            ))}
-                    </select>
-                    <label htmlFor="project">Project</label>
-                    <select id= "project" name="project" value={entry.project} onChange={handleChange}>
-                        <option value="">Select Client first</option>
-                        {projectOptions.map(opt => (
-                            <option key={opt.value} value={opt.label}>{opt.label}</option>
-                            ))}
-                    </select>
-                    <label htmlFor="counterparty">Counterparty</label>
-                    <select id= "counterparty" name="counterparty" value={entry.counterparty} onChange={handleChange}>
-                        <option value="">Select Client first</option>
-                        {counterpartyOptions.map(opt => (
-                            <option key={opt.value} value={opt.label}>{opt.label}</option>
-                        ))}
-                    </select>
-                    <label htmlFor="start_time">Start Time</label>
+                <div className='user-input'>
+                    <DropdownInput
+                        label="PID"
+                        name="pid"
+                        value={entry.pid}
+                        onChange={handleChange}
+                        options={pidOptions}
+                        defaultOption = "Select PID"
+                    />
+                    <DropdownInput
+                        label="Client"
+                        name="client"
+                        value={entry.client}
+                        onChange={handleChange}
+                        options={clientOptions}
+                        defaultOption = "Select Client"
+                    />
+                    <DropdownInput
+                        label="Department"
+                        name="department"
+                        value={entry.department}
+                        onChange={handleChange}
+                        options={departmentOptions}
+                        defaultOption = "Select Department"
+                    />
+                    <DropdownInput
+                        label="Project"
+                        name="project"
+                        value={entry.project}
+                        onChange={handleChange}
+                        options={projectOptions}
+                        defaultOption = "Select Project"
+                    />
+                    <DropdownInput
+                        label="Counterparty"
+                        name="counterparty"
+                        value={entry.counterparty}
+                        onChange={handleChange}
+                        options={counterpartyOptions}
+                        defaultOption = "Select Counterparty"
+                    />
+                    <DateTimeInput
+                        label="Start Time"
+                        name="start_time"
+                        id="start_time"
+                        value={entry.start_time}
+                        onChange={handleChange}
+                    />
+                    {/* <label htmlFor="start_time">Start Time</label>
                     <input
                         id="start_time"
                         type="datetime-local"
                         name="start_time"
                         value={entry.start_time}
                         onChange={handleChange}
+                    /> */}
+                    <DateTimeInput
+                        label="End Time"
+                        name="end_time"
+                        id="end_time"
+                        value={entry.end_time}
+                        onChange={handleChange}
                     />
-                    <label htmlFor="end_time">End Time</label>
+                    {/* <label htmlFor="end_time">End Time</label>
                     <input
                         id="end_time"
                         type="datetime-local"
                         name="end_time"
                         value={entry.end_time}
                         onChange={handleChange}
-                    />
+                    /> */}
                 </div>
                 <div className='area'>                    
                     <div className="area-drag">
@@ -349,49 +376,51 @@ function TimeEntryForm() {
                             />
                         </div>
                     <div className='area-button'>
-                        <button className='submit-button' type="submit">Submit</button>
-                        <button type="button" onClick={switchLanguage}>Switch Language</button>
+                        <button className='btn btn-outline-secondary' type="submit">Submit</button>
+                        <button className='btn btn-outline-secondary' type="button" onClick={switchLanguage}>Switch Language</button>
                     </div>
                 </div>
             </form>
-            <table className='data-table'>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>PID</th>
-                        <th>Client</th>
-                        <th>Department</th>
-                        <th>Project</th>
-                        <th>Counterparty</th>
-                        <th>Description</th>
-                        <th>Start Time</th>
-                        <th>End Time</th>
-                        <th>Time Difference</th>
-                        <th>Time Difference Decimal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {entries.map(entry => (
-                        <tr key={entry.id}>
-                            <td>{entry.id}</td>
-                            <td>{entry.pid}</td>
-                            <td>{entry.client}</td>
-                            <td>{entry.department}</td>
-                            <td>{entry.project}</td>
-                            <td>{entry.counterparty}</td>
-                            <td>{entry.description}</td>
-                            <td>{formatDate(entry.start_time)}</td>
-                            <td>{formatDate(entry.end_time)}</td>
-                            <td>{formatDifference(entry.time_diff_hrs_mins)}</td>
-                            <td>{entry.time_diff_decimal} h.</td>
-                            <td>
-                                <button onClick={() => populateFormForEdit(entry)}>Edit</button>
-                                <button onClick={() => deleteEntry(entry.id)}>Delete</button>
-                            </td>
+            <div className='table-responsive'>
+                <table className='table table-striped table-hover'>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>PID</th>
+                            <th>Client</th>
+                            <th>Department</th>
+                            <th>Project</th>
+                            <th>Counterparty</th>
+                            <th>Description</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Time Difference</th>
+                            <th>Time Difference Decimal</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {entries.map(entry => (
+                            <tr key={entry.id}>
+                                <td>{entry.id}</td>
+                                <td>{entry.pid}</td>
+                                <td>{entry.client}</td>
+                                <td>{entry.department}</td>
+                                <td>{entry.project}</td>
+                                <td>{entry.counterparty}</td>
+                                <td>{entry.description}</td>
+                                <td>{formatDate(entry.start_time)}</td>
+                                <td>{formatDate(entry.end_time)}</td>
+                                <td>{formatDifference(entry.time_diff_hrs_mins)}</td>
+                                <td>{entry.time_diff_decimal} h.</td>
+                                <td>
+                                    <button className='btn btn-outline-secondary btn-sm' onClick={() => populateFormForEdit(entry)}>Edit</button>
+                                    <button className='btn btn-outline-danger btn-sm' onClick={() => deleteEntry(entry.id)}>Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </DndProvider>
     );
 }

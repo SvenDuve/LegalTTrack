@@ -3,6 +3,8 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const app = express();
+const cors = require('cors');
+app.use(cors());
 const dbPath = 'data/legalttracker.db';
 
 const fs = require('fs');
@@ -234,7 +236,8 @@ app.get('/api/time-entries', (req, res) => {
             end_time,
             strftime('%H:%M', (julianday(end_time) - julianday(start_time)) * 86400.0, 'unixepoch') AS time_diff_hrs_mins,
             ROUND((julianday(end_time) - julianday(start_time)) * 24.0, 2) AS time_diff_decimal
-        FROM time_entries`;
+        FROM time_entries
+        ORDER BY start_time DESC`;
 
     db.all(sql, [], (err, rows) => {
         if (err) {
