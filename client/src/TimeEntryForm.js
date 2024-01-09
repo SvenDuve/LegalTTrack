@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 // Add this import to your TimeEntryForm.js
 import './TimeEntryForm.css';
-import { useDrag, useDrop, DndProvider} from 'react-dnd';
+import { DndProvider} from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import DraggableText from './DraggableText';
 import DroppableArea from './DroppableArea';
@@ -32,7 +32,7 @@ function TimeEntryForm() {
 
     const [language, setLanguage] = useState('en'); // default language is English
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    // const [error, setError] = useState(null);
 
     const switchLanguage = () => {
         setLanguage(prevLang => prevLang === 'en' ? 'de' : 'en');
@@ -172,10 +172,10 @@ function TimeEntryForm() {
     };
     
     
-    const editEntry = (entry) => {
-        setEntry(entry);
-        // Scroll to the form or open a modal for editing
-    };
+    // const editEntry = (entry) => {
+    //     setEntry(entry);
+    //     // Scroll to the form or open a modal for editing
+    // };
 
     const populateFormForEdit = (entry) => {
 
