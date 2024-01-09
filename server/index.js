@@ -17,7 +17,10 @@ if (process.env.NODE_ENV === 'production') {
 
 
 const cors = require('cors');
-app.use(cors());
+const corsOptions = {
+    origin: 'https://shielded-forest-17137-cd55aacc0947.herokuapp.com',
+}
+app.use(cors(corsOptions));
 const dbPath = 'data/legalttracker.sqlite';
 // const dbPath = new URL(process.env.DATABASE_URL).pathname;
 

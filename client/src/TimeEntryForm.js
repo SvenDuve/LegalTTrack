@@ -11,9 +11,11 @@ import DroppableArea from './DroppableArea';
 import DropdownInput from './DropdownInput';
 import DateTimeInput from './DateTimeInput';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
-const apiUrl = process.env.REACT_APP_API_URL;
-console.log('API URL:', apiUrl);
+
+// const API_BASE_URL = process.env.REACT_APP_API_URL;
+// console.log('API URL:', API_BASE_URL);
 
 
 
@@ -97,7 +99,7 @@ function TimeEntryForm() {
 
     useEffect(() => {
 
-        fetch(`${apiUrl}/api/clients`)
+        fetch(`${API_BASE_URL}/api/clients`)
         .then(response => response.json())
         .then(data => {
             // Assuming data is an array of clients
@@ -115,15 +117,15 @@ function TimeEntryForm() {
         
         if (entry.client) {
 
-            fetch(`${apiUrl}/api/departments/${entry.client}`)
+            fetch(`${API_BASE_URL}/api/departments/${entry.client}`)
             .then(response => response.json())
             .then(data => setDepartmentOptions(data.map(dept => ({ value: dept, label: dept }))))   
 
-            fetch(`${apiUrl}/api/projects/${entry.client}`)
+            fetch(`${API_BASE_URL}/api/projects/${entry.client}`)
             .then(response => response.json())
             .then(data => setProjectOptions(data.map(project => ({ value: project, label: project }))))   
 
-            fetch(`${apiUrl}/api/counterparties`)
+            fetch(`${API_BASE_URL}/api/counterparties`)
             .then(response => response.json())
             .then(data => setCounterpartyOptions(data.map(cpty => ({ value: cpty.value, label: cpty.label }))))
                    
@@ -137,7 +139,7 @@ function TimeEntryForm() {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`${apiUrl}/api/time-entries`)
+        fetch(`${API_BASE_URL}/api/time-entries`)
             .then(response => response.json())
             // .then(data => setEntries(Object.values(data)[1]))
             .then(data => setEntries(data.entries))
@@ -152,7 +154,7 @@ function TimeEntryForm() {
 
     const addTimeEntry = async (data) => {
         try {
-            const response = await fetch(`${apiUrl}/api/add-entry`, {
+            const response = await fetch(`${API_BASE_URL}/api/add-entry`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -186,7 +188,7 @@ function TimeEntryForm() {
 
     const updateEntry = async (updatedEntry) => {
         try {
-            const response = await fetch(`${apiUrl}/api/time-entries/${updatedEntry.id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/time-entries/${updatedEntry.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -215,7 +217,7 @@ function TimeEntryForm() {
                 return;
             }
 
-            const response = await fetch(`${apiUrl}/api/time-entries/${id}`, { method: 'DELETE' });
+            const response = await fetch(`${API_BASE_URL}/api/time-entries/${id}`, { method: 'DELETE' });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
